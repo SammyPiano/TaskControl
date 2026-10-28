@@ -117,7 +117,10 @@ class TareaSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, empresa, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["tipo_servicio"].queryset = TipoServicio.objects.filter(empresa=empresa)
+        actual = self.instance.tipo_servicio_id if self.instance else None
+        self.fields["tipo_servicio"].queryset = TipoServicio.objects.filter(empresa=empresa).filter(
+            Q(activo=True) | Q(pk=actual)
+        )
         self.fields["asignado_a"].queryset = empleados_de(empresa)
         self.fields["tipo_servicio"].error_messages["does_not_exist"] = "Elija un tipo de servicio válido."
         self.fields["asignado_a"].error_messages["does_not_exist"] = "Elija un empleado activo de su empresa."
@@ -138,6 +141,8 @@ class TareasView(ListAPIView):
             qs = qs.filter(filtro)
         if p.get("estado") in Tarea.Estado.values:
             qs = qs.filter(estado=p["estado"])
+        elif p.get("estado") == "ABIERTA":
+            qs = qs.filter(estado__in=Tarea.ESTADOS_ABIERTOS)
         elif p.get("estado") == "VENCIDA":
             from django.utils import timezone
 
@@ -195,10 +200,12 @@ class TareaDetalleView(APIView):
             return Response({"detail": ["La tarea no admite cambios en su estado actual."]}, status=400)
         serializer = TareaSerializer(tarea, data=request.data, partial=True, empresa=request.user.empresa)
         serializer.is_valid(raise_exception=True)
-        serializer.validated_data.pop("items", None)
+        items = serializer.validated_data.pop("items", None)
         anterior = tarea.asignado_a_id
         with transaction.atomic():
             tarea = serializer.save()
+            if items is not None:
+                tarea.actualizar_checklist(items, request.user)
             if tarea.asignado_a_id != anterior:
                 tarea.registrar_asignacion(request.user)
         return Response(tarea_detalle(detalle_qs(request.user).get(pk=pk)))

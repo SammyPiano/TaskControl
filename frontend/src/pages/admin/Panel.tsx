@@ -59,12 +59,12 @@ export default function Panel() {
       {k && datos && (
         <>
           <div className="kpi-grid">
-            <Stat icon="tasks" label="Tareas pendientes" value={String(k.pendientes)} detail={`+${k.creadas_hoy} hoy`} tone="wine" />
-            <Stat icon="review" label="En revisión" value={String(k.en_revision)} detail={plural(k.urgentes_en_revision, "urgente", "urgentes")} tone="amber" />
-            <Stat icon="alert" label="Vencidas" value={String(k.vencidas)} detail="Fecha límite superada" tone="red" />
-            <Stat icon="chart" label="Cumplimiento" value={k.cumplimiento === null ? "—" : `${k.cumplimiento}%`} detail={datos.mes} tone="blue" />
-            <Stat icon="wallet" label="Viáticos por liquidar" value={String(k.viaticos_por_liquidar)} detail={rd(k.monto_por_liquidar)} tone="amber" />
-            <Stat icon="wallet" label="Gasto del mes" value={rd(k.gasto_mes)} detail={plural(k.gastos_mes, "gasto aprobado", "gastos aprobados")} tone="blue" />
+            <Stat icon="tasks" label="Tareas pendientes" value={String(k.pendientes)} detail={`+${k.creadas_hoy} hoy`} tone="wine" to="/tareas?estado=ABIERTA" />
+            <Stat icon="review" label="En revisión" value={String(k.en_revision)} detail={plural(k.urgentes_en_revision, "urgente", "urgentes")} tone="amber" to="/tareas?estado=EN_REVISION" />
+            <Stat icon="alert" label="Vencidas" value={String(k.vencidas)} detail="Fecha límite superada" tone="red" to="/tareas?estado=VENCIDA" />
+            <Stat icon="chart" label="Cumplimiento" value={k.cumplimiento === null ? "—" : `${k.cumplimiento}%`} detail={datos.mes} tone="blue" to="/reportes?tipo=cumplimiento" />
+            <Stat icon="wallet" label="Viáticos por liquidar" value={String(k.viaticos_por_liquidar)} detail={rd(k.monto_por_liquidar)} tone="amber" to="/viaticos?estado=POR_LIQUIDAR" />
+            <Stat icon="wallet" label="Gasto del mes" value={rd(k.gasto_mes)} detail={plural(k.gastos_mes, "gasto aprobado", "gastos aprobados")} tone="blue" to="/reportes?tipo=viaticos" />
           </div>
 
           <div className="grid gap-5 lg:grid-cols-[1.05fr_1fr]">

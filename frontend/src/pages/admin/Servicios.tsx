@@ -17,6 +17,7 @@ export default function Servicios() {
   const [nuevo, setNuevo] = useState<string | null>(null);
   const [errores, setErrores] = useState<string[]>([]);
   const [guardado, setGuardado] = useState(false);
+  const [aviso, setAviso] = useState("");
   const [ocupado, setOcupado] = useState(false);
 
   const tipo = tipos?.find((t) => t.id === seleccion) ?? null;
@@ -28,7 +29,7 @@ export default function Servicios() {
     setNombre(tipo?.nombre ?? "");
     setErrores([]);
     setGuardado(false);
-  }, [tipo]);
+  }, [tipo?.id]); // eslint-disable-line react-hooks/exhaustive-deps -- solo al cambiar de servicio, no al guardar
 
   const reemplazar = (t: TipoServicio) => setTipos((lista) => lista?.map((x) => (x.id === t.id ? t : x)) ?? null);
   const accion = async (fn: () => Promise<void>) => {
@@ -54,10 +55,16 @@ export default function Servicios() {
     setTipos((lista) => [...(lista ?? []), t].sort((a, b) => a.nombre.localeCompare(b.nombre)));
     setSeleccion(t.id);
     setNuevo(null);
+    setAviso("");
   });
   const eliminar = () => accion(async () => {
-    if (!tipo || !window.confirm(`¿Eliminar el servicio «${tipo.nombre}»?`)) return;
-    await api(`servicios/${tipo.id}/`, { method: "DELETE" });
+    if (!tipo) return;
+    const pregunta = tipo.usos
+      ? `«${tipo.nombre}» tiene ${plural(tipo.usos, "tarea", "tareas")}. Se archivará: no aparecerá al crear tareas y las existentes no cambian. ¿Continuar?`
+      : `¿Eliminar el servicio «${tipo.nombre}»?`;
+    if (!window.confirm(pregunta)) return;
+    const { archivado } = await api<{ archivado: boolean }>(`servicios/${tipo.id}/`, { method: "DELETE" });
+    setAviso(archivado ? `«${tipo.nombre}» se archivó; sus tareas conservan el servicio. Créalo con el mismo nombre para reactivarlo.` : `«${tipo.nombre}» se eliminó.`);
     setTipos((lista) => lista?.filter((t) => t.id !== tipo.id) ?? null);
     setSeleccion(null);
   });
@@ -76,6 +83,7 @@ export default function Servicios() {
         <button className="admin-primary" onClick={() => setNuevo("")}><Icon name="plus" size={17} />Nuevo servicio</button>
       </Heading>
       <ErrorBox mensajes={errCarga} />
+      {aviso && <div className="success-banner"><Icon name="check" /><div><b>Servicio actualizado</b><span>{aviso}</span></div></div>}
       {!tipos && !errCarga.length && <Cargando filas={3} />}
       {tipos && (
         <div className="grid gap-5 lg:grid-cols-[.72fr_1.28fr]">
@@ -104,7 +112,7 @@ export default function Servicios() {
               <div className="card-heading mb-5">
                 <div className="min-w-0"><h2>Plantilla · {tipo.nombre}</h2><p>Usa las flechas para cambiar el orden. Las tareas ya creadas no cambian.</p></div>
                 <div className="flex gap-1">
-                  {tipo.usos === 0 && <button onClick={eliminar} disabled={ocupado} className="!text-red-700">Eliminar</button>}
+                  <button onClick={eliminar} disabled={ocupado} className="!text-red-700">Eliminar</button>
                   <button onClick={guardar} disabled={ocupado}>{ocupado ? "Guardando…" : "Guardar cambios"}</button>
                 </div>
               </div>

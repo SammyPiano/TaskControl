@@ -36,6 +36,7 @@ export default function TareaForm() {
       titulo: tarea.titulo, descripcion: tarea.descripcion, tipo_servicio: String(tarea.tipo_servicio_id), prioridad: tarea.prioridad,
       ubicacion: tarea.ubicacion, fecha_limite: tarea.fecha_limite ?? "", asignado_a: String(tarea.asignado.id), criterios_aceptacion: tarea.criterios_aceptacion,
     });
+    setItems(tarea.items.map(({ id, descripcion, obligatorio }) => ({ id, descripcion, obligatorio })));
   }, [tarea]);
 
   const set = (campo: keyof Datos) => (e: { target: { value: string } }) => setD({ ...d, [campo]: e.target.value });
@@ -55,7 +56,7 @@ export default function TareaForm() {
   const enviar = async (e: FormEvent) => {
     e.preventDefault();
     setEnviando(true);
-    const cuerpo = { ...d, fecha_limite: d.fecha_limite || null, ...(editando ? {} : { items }) };
+    const cuerpo = { ...d, fecha_limite: d.fecha_limite || null, items };
     try {
       const t = await api<TareaDetalle>(editando ? `tareas/${id}/` : "tareas/", { method: editando ? "PATCH" : "POST", body: cuerpo });
       navigate(`/tareas/${t.id}`, { replace: true });
@@ -88,6 +89,7 @@ export default function TareaForm() {
                 <select value={d.tipo_servicio} onChange={(e) => elegirTipo(e.target.value)} required>
                   <option value="">Elige un servicio…</option>
                   {opciones.tipos.map((t) => <option key={t.id} value={t.id}>{t.nombre}</option>)}
+                  {tarea && !tipo && <option value={tarea.tipo_servicio_id}>{tarea.tipo_servicio} (archivado)</option>}
                 </select>
               </Field>
               <Field label="Prioridad *">
@@ -105,31 +107,20 @@ export default function TareaForm() {
             </div>
           </section>
           <section className="admin-card self-start">
-            {editando ? (
-              <>
-                <SectionTitle number="2" title="Lista de verificación" detail="Se definió al crear la tarea" />
-                <div className="template-items">
-                  {tarea!.items.map((x, i) => <div key={x.id}><span className="item-number">{i + 1}</span><span className="flex-1 text-[13px] text-slate-600">{x.descripcion}</span>{x.obligatorio && <small className="text-[11px] font-semibold text-wine">Obligatorio</small>}{x.completado && <Icon name="check" size={16} />}</div>)}
-                  {!tarea!.items.length && <p className="text-xs text-slate-400">Sin lista de verificación.</p>}
+            <SectionTitle number="2" title="Lista de verificación" detail={editando ? "Agrega, edita, ordena o quita ítems; los marcados conservan su estado" : tipo?.plantilla ? `Generada desde “${tipo.plantilla.nombre}”` : tipo ? "El servicio no tiene plantilla; agrega los ítems" : "Elige el tipo de servicio para cargar su plantilla"} />
+            <div className="template-items">
+              {items.map((x, i) => (
+                <div key={i}>
+                  <div className="orden-botones"><button type="button" onClick={() => mover(i, -1)} disabled={i === 0} aria-label="Subir"><Icon name="up" size={14} /></button><button type="button" onClick={() => mover(i, 1)} disabled={i === items.length - 1} aria-label="Bajar"><Icon name="down" size={14} /></button></div>
+                  <span className="item-number">{i + 1}</span>
+                  <input value={x.descripcion} onChange={(e) => cambiarItem(i, { descripcion: e.target.value })} aria-label={`Ítem ${i + 1}`} maxLength={255} />
+                  <Switch checked={x.obligatorio} onChange={(v) => cambiarItem(i, { obligatorio: v })} />
+                  <button type="button" onClick={() => setItems(items.filter((_, n) => n !== i))} aria-label={`Quitar ítem ${i + 1}`}><Icon name="trash" size={16} /></button>
                 </div>
-              </>
-            ) : (
-              <>
-                <SectionTitle number="2" title="Lista de verificación" detail={tipo?.plantilla ? `Generada desde “${tipo.plantilla.nombre}”` : tipo ? "El servicio no tiene plantilla; agrega los ítems" : "Elige el tipo de servicio para cargar su plantilla"} />
-                <div className="template-items">
-                  {items.map((x, i) => (
-                    <div key={i}>
-                      <div className="orden-botones"><button type="button" onClick={() => mover(i, -1)} disabled={i === 0} aria-label="Subir"><Icon name="up" size={14} /></button><button type="button" onClick={() => mover(i, 1)} disabled={i === items.length - 1} aria-label="Bajar"><Icon name="down" size={14} /></button></div>
-                      <span className="item-number">{i + 1}</span>
-                      <input value={x.descripcion} onChange={(e) => cambiarItem(i, { descripcion: e.target.value })} aria-label={`Ítem ${i + 1}`} maxLength={255} />
-                      <Switch checked={x.obligatorio} onChange={(v) => cambiarItem(i, { obligatorio: v })} />
-                      <button type="button" onClick={() => setItems(items.filter((_, n) => n !== i))} aria-label={`Quitar ítem ${i + 1}`}><Icon name="trash" size={16} /></button>
-                    </div>
-                  ))}
-                </div>
-                <button type="button" className="add-item" onClick={() => setItems([...items, { descripcion: "", obligatorio: true }])}><Icon name="plus" size={16} />Agregar ítem</button>
-              </>
-            )}
+              ))}
+              {editando && !items.length && <p className="text-xs text-slate-400">Sin lista de verificación.</p>}
+            </div>
+            <button type="button" className="add-item" onClick={() => setItems([...items, { descripcion: "", obligatorio: true }])}><Icon name="plus" size={16} />Agregar ítem</button>
           </section>
         </div>
       )}

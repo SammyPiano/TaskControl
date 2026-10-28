@@ -6,6 +6,7 @@ from cuentas.models import Empresa
 class TipoServicio(models.Model):
     empresa = models.ForeignKey(Empresa, on_delete=models.PROTECT, related_name="tipos_servicio")
     nombre = models.CharField(max_length=100)
+    activo = models.BooleanField(default=True)
 
     class Meta:
         ordering = ["nombre"]
@@ -17,6 +18,15 @@ class TipoServicio(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    def eliminar(self):
+        """Sin tareas se borra; con tareas se archiva para que estas conserven su servicio. Devuelve True si se archivó."""
+        if self.tareas.exists():
+            self.activo = False
+            self.save(update_fields=["activo"])
+            return True
+        self.delete()
+        return False
 
 
 class PlantillaChecklist(models.Model):

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router";
 import Avatar from "@/components/Avatar";
 import Cargando from "@/components/Cargando";
 import ErrorBox from "@/components/ErrorBox";
@@ -23,7 +24,8 @@ type Reporte = {
 const iniciales = (nombre: string) => nombre.split(" ").filter(Boolean).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
 
 export default function Reportes() {
-  const [tipo, setTipo] = useState("cumplimiento");
+  const [params] = useSearchParams();
+  const [tipo, setTipo] = useState(params.get("tipo") ?? "cumplimiento");
   const [desde, setDesde] = useState(primeroDelMes());
   const [hasta, setHasta] = useState(hoyIso());
   const [empleado, setEmpleado] = useState("");

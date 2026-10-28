@@ -88,7 +88,7 @@ export default function MisTareas() {
         <div className="space-y-3 px-5">
           <ErrorBox mensajes={errores} />
           {cargando && !tareas && <Cargando filas={3} alto="h-40" />}
-          {visibles.map((t) => <TaskCard key={t.id} tarea={t} />)}
+          <div className="lista-tarjetas">{visibles.map((t) => <TaskCard key={t.id} tarea={t} />)}</div>
           {tareas && !visibles.length && <div className="rounded-xl border border-dashed border-slate-300 p-7 text-center text-xs text-slate-400">No hay tareas en este filtro.</div>}
         </div>
       </div>

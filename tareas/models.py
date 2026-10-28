@@ -121,6 +121,32 @@ class Tarea(models.Model):
             if d
         )
 
+    @transaction.atomic
+    def actualizar_checklist(self, items, usuario):
+        """Agrega, modifica, reordena y quita ítems. Los ítems que siguen conservan su marcado."""
+        if not self.esta_abierta:
+            raise ValidationError("La tarea no admite cambios en el checklist en su estado actual.")
+        actuales = {i.pk: i for i in self.items.all()}
+        conservados, nuevos, modificados = set(), [], 0
+        for orden, dato in enumerate((i for i in items if str(i.get("descripcion", "")).strip()), start=1):
+            descripcion = str(dato["descripcion"]).strip()[:255]
+            obligatorio = bool(dato.get("obligatorio", True))
+            item = actuales.get(dato.get("id")) if dato.get("id") not in conservados else None
+            if item is None:
+                nuevos.append(ItemChecklist(tarea=self, descripcion=descripcion, obligatorio=obligatorio, orden=orden))
+                continue
+            conservados.add(item.pk)
+            if (item.descripcion, item.obligatorio, item.orden) != (descripcion, obligatorio, orden):
+                modificados += 1
+                item.descripcion, item.obligatorio, item.orden = descripcion, obligatorio, orden
+                item.save(update_fields=["descripcion", "obligatorio", "orden"])
+        quitados = [pk for pk in actuales if pk not in conservados]
+        ItemChecklist.objects.filter(pk__in=quitados).delete()
+        ItemChecklist.objects.bulk_create(nuevos)
+        if nuevos or quitados or modificados:
+            registrar(usuario, self, "Checklist actualizado",
+                      f"{len(nuevos)} agregados, {modificados} modificados, {len(quitados)} quitados.")
+
     def iniciar(self):
         """PENDIENTE → EN_PROCESO al empezar a trabajar."""
         if self.estado == self.Estado.PENDIENTE:

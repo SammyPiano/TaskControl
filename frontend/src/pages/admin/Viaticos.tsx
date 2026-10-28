@@ -51,6 +51,7 @@ export default function Viaticos() {
           <select value={estado} onChange={(e) => cambiar("estado", e.target.value)} aria-label="Estado">
             <option value="">Todos los estados</option>
             {ESTADOS.map(([v, e]) => <option key={v} value={v}>{e}</option>)}
+            <option value="POR_LIQUIDAR">Por liquidar</option>
           </select>
           <select value={empleado} onChange={(e) => cambiar("empleado", e.target.value)} aria-label="Empleado">
             <option value="">Todos los empleados</option>

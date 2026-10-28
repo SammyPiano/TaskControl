@@ -50,11 +50,22 @@ class ServiciosApiTests(TestCase):
         r = self.client.put(url, {"items": [{"descripcion": " "}]}, content_type="application/json")
         self.assertEqual(r.status_code, 400)
 
-    def test_no_elimina_tipo_con_tareas(self):
+    def test_eliminar_tipo_con_tareas_lo_archiva(self):
         tipo = TipoServicio.objects.create(empresa=self.empresa, nombre="Usado")
-        Tarea.objects.create(
+        tarea = Tarea.objects.create(
             empresa=self.empresa, tipo_servicio=tipo, asignado_a=self.empleado, creado_por=self.admin, titulo="T"
         )
-        self.assertEqual(self.client.delete(f"/api/servicios/{tipo.pk}/").status_code, 400)
+        r = self.client.delete(f"/api/servicios/{tipo.pk}/")
+        self.assertEqual((r.status_code, r.json()), (200, {"archivado": True}))
+        tarea.refresh_from_db()
+        self.assertEqual(tarea.tipo_servicio, tipo)  # la tarea conserva su servicio
+        self.assertNotIn(tipo.pk, [t["id"] for t in self.client.get("/api/servicios/").json()])
+        self.assertNotIn(tipo.pk, [t["id"] for t in self.client.get("/api/tareas/opciones/").json()["tipos"]])
+        # crear con el mismo nombre lo reactiva
+        r = self.client.post("/api/servicios/", {"nombre": "usado"}, content_type="application/json")
+        self.assertEqual((r.status_code, r.json()["id"]), (201, tipo.pk))
         libre = TipoServicio.objects.create(empresa=self.empresa, nombre="Libre")
-        self.assertEqual(self.client.delete(f"/api/servicios/{libre.pk}/").status_code, 204)
+        r = self.client.delete(f"/api/servicios/{libre.pk}/")
+        self.assertEqual(r.json(), {"archivado": False})
+        self.assertFalse(TipoServicio.objects.filter(pk=libre.pk).exists())
+        self.assertEqual(self.client.delete(f"/api/servicios/{self.tipo_otra.pk}/").status_code, 404)

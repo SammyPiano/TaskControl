@@ -52,6 +52,7 @@ export default function Tareas() {
           <select value={filtro("estado")} onChange={(e) => cambiar("estado", e.target.value)} aria-label="Estado">
             <option value="">Todos los estados</option>
             {opciones?.estados.map((o) => <option key={o.valor} value={o.valor}>{o.etiqueta}</option>)}
+            <option value="ABIERTA">Pendientes (sin completar)</option>
             <option value="VENCIDA">Vencidas</option>
           </select>
           <select value={filtro("prioridad")} onChange={(e) => cambiar("prioridad", e.target.value)} aria-label="Prioridad">

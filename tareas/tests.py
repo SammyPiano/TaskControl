@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from configuracion.models import ItemPlantilla, PlantillaChecklist, TipoServicio
 from cuentas.models import Empresa, Usuario
+from historial.models import Historial
 
 from .models import ItemChecklist, Tarea
 
@@ -78,6 +79,43 @@ class CrearTareaTests(Base):
         Tarea.objects.filter(pk=tarea.pk).update(estado=Tarea.Estado.COMPLETADA)
         r = self.client.patch(f"/api/tareas/{tarea.pk}/", {"titulo": "X"}, content_type="application/json")
         self.assertEqual(r.status_code, 400)
+
+    def test_editar_checklist(self):
+        tarea = self.crear_tarea()
+        medir, foto = tarea.items.order_by("orden")
+        medir.marcar(True)
+        self.client.force_login(self.admin)
+        items = [
+            {"id": foto.pk, "descripcion": "Foto final del equipo", "obligatorio": True},
+            {"id": medir.pk, "descripcion": "Medir", "obligatorio": True},
+            {"descripcion": "Limpiar área", "obligatorio": False},
+            {"descripcion": "  "},
+        ]
+        r = self.client.patch(f"/api/tareas/{tarea.pk}/", {"items": items}, content_type="application/json")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(
+            [(i["descripcion"], i["obligatorio"], i["completado"]) for i in r.json()["items"]],
+            [("Foto final del equipo", True, False), ("Medir", True, True), ("Limpiar área", False, False)],
+        )
+        r = self.client.patch(f"/api/tareas/{tarea.pk}/", {"items": [{"id": medir.pk, "descripcion": "Medir"}]},
+                              content_type="application/json")
+        self.assertEqual([i["id"] for i in r.json()["items"]], [medir.pk])
+        self.assertTrue(Historial.objects.filter(entidad_id=tarea.pk, accion="Checklist actualizado").exists())
+        # el empleado no edita y los ítems de otra tarea no se pueden apropiar
+        otra = self.crear_tarea()
+        r = self.client.patch(f"/api/tareas/{tarea.pk}/", {"items": [{"id": otra.items.first().pk, "descripcion": "X"}]},
+                              content_type="application/json")
+        self.assertEqual(otra.items.count(), 2)
+        self.assertEqual(tarea.items.get().descripcion, "X")
+        self.client.force_login(self.emp)
+        r = self.client.patch(f"/api/tareas/{tarea.pk}/", {"items": []}, content_type="application/json")
+        self.assertEqual(r.status_code, 403)
+
+    def test_filtro_abiertas(self):
+        abierta = self.crear_tarea()
+        Tarea.objects.filter(pk=self.crear_tarea().pk).update(estado=Tarea.Estado.EN_REVISION)
+        self.client.force_login(self.admin)
+        self.assertEqual(ids(self.client.get("/api/tareas/?estado=ABIERTA")), [abierta.pk])
 
 
 class ListaTareasTests(Base):

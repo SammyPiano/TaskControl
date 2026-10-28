@@ -117,6 +117,8 @@ class ViaticosView(APIView):
         p = request.query_params
         if p.get("estado") in Viatico.Estado.values:
             qs = qs.filter(estado=p["estado"])
+        elif p.get("estado") == "POR_LIQUIDAR":
+            qs = qs.filter(estado__in=Viatico.ESTADOS_GASTOS)
         if q := p.get("q", "").strip():
             qs = qs.filter(
                 Q(concepto__icontains=q) | Q(tarea__titulo__icontains=q)

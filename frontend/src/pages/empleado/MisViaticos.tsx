@@ -45,7 +45,7 @@ export default function MisViaticos() {
         <div className="mb-4 flex items-center justify-between"><div className="section-title !mb-0">Solicitudes recientes</div>{lista && <span className="text-xs text-slate-400">{plural(lista.length, "registro", "registros")}</span>}</div>
         <ErrorBox mensajes={errores} />
         {cargando && !lista && <Cargando filas={3} alto="h-28" />}
-        <div className="space-y-3">
+        <div className="lista-tarjetas">
           {lista?.map((v) => (
             <Link key={v.id} to={`/viaticos/${v.id}`} className="content-card expense-row">
               <div className="mb-3 flex items-start justify-between gap-3">
@@ -59,6 +59,8 @@ export default function MisViaticos() {
               </div>
             </Link>
           ))}
+        </div>
+        <div>
           {lista && !lista.length && <div className="rounded-xl border border-dashed border-slate-300 p-7 text-center text-xs text-slate-400">No tienes viáticos {estado ? "en este estado" : "registrados"}.</div>}
         </div>
       </div>
