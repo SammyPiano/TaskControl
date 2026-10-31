@@ -7,7 +7,7 @@ from tareas.api import empleados_de
 
 
 def limites(desde, hasta):
-    """Rango [desde 00:00, hasta+1 00:00) en la zona local; evita __date (CONVERT_TZ en MySQL)."""
+    """Rango [desde 00:00, hasta+1 00:00) en la zona local."""
     inicio = timezone.make_aware(datetime.combine(desde, time.min)) if desde else None
     fin = timezone.make_aware(datetime.combine(hasta + timedelta(days=1), time.min)) if hasta else None
     return inicio, fin

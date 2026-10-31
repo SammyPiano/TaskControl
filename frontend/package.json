@@ -4,7 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "preparar": "node scripts/preparar.mjs",
     "dev": "vite",
+    "dev:todo": "concurrently -k -n django,vite -c yellow,cyan \"node scripts/django.mjs runserver\" \"vite\"",
+    "servir": "pnpm build && node scripts/django.mjs runserver",
+    "django": "node scripts/django.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "format": "oxfmt"
@@ -20,6 +24,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^6.0.0",
+    "concurrently": "^9.2.5",
     "oxfmt": "^0.2.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.7.0",

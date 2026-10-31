@@ -1,7 +1,7 @@
 # CampoTrack — gestión de tareas y viáticos (Django + React)
 
 ## Stack
-- Backend: Python 3.12, Django 5.2, Django REST Framework, MySQL 8.4 (SQLite en desarrollo), Pillow. Sin Celery.
+- Backend: Python 3.12, Django 5.2, Django REST Framework, SQLite, Pillow. Sin Celery.
 - Frontend: React 19 + TypeScript 5.7 + Vite 8 + Tailwind CSS v4 (`@tailwindcss/vite`, sin tailwind.config ni PostCSS), pnpm. Diseño base de Figma Make.
 - Toda la interfaz es la SPA de React (ya no hay plantillas Django; `/` redirige a `/app/`). El diseño de referencia es el export de Figma Make «TaskControl web app mockup».
 
@@ -16,7 +16,7 @@ cuentas, configuracion, tareas, entregas, viaticos, historial, reportes. Proyect
 - Archivos (fotos, comprobantes) por endpoints protegidos, nunca por `/media/` directo. Exportación CSV por la API.
 - Montos como string decimal en JSON (nunca float); fechas ISO en la API y dd/mm/aaaa en pantalla (`Intl` con `es-DO` y zona America/Santo_Domingo).
 - Componentes con export default; utilidades de Tailwind en JSX; tema (colores, fuentes) en `src/index.css` con `@theme`.
-- La SPA vive en `/app/` (React Router con basename `/app`). Desarrollo: `runserver` en :8000 + `pnpm dev` en :5173 (abrir http://localhost:5173/app/; el proxy manda lo demás a Django). Producción: `pnpm build` y Django sirve `frontend/dist` en `/static/app/`.
+- La SPA vive en `/app/` (React Router con basename `/app`). Desarrollo: `pnpm dev:todo` desde `frontend/` (`runserver` en :8000 + Vite en :5173; abrir http://localhost:5173/app/; el proxy manda lo demás a Django). Producción: `pnpm build` y Django sirve `frontend/dist` en `/static/app/`.
 - Menús en `src/lib/navegacion.ts`. Una misma ruta puede mostrar pantalla distinta por rol (`PorRol` en `App.tsx`); pantallas en `src/pages/admin` y `src/pages/empleado`.
 - Las notificaciones e historial enlazan a rutas de la SPA (`/app/tareas/<id>`, `/app/entregas/<id>`, `/app/viaticos/<id>`), ver `historial/servicios.py`.
 - Administrador: armazón de escritorio (menú lateral, cajón bajo `lg`). Empleado: armazón de teléfono (barra inferior).

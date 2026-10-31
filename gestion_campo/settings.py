@@ -3,7 +3,7 @@ Configuración de gestion_campo (CampoTrack).
 
 Variables de entorno (también se leen desde un archivo .env en la raíz):
   DJANGO_SECRET_KEY, DJANGO_DEBUG, DJANGO_ALLOWED_HOSTS, DJANGO_CSRF_TRUSTED_ORIGINS
-  DB_ENGINE=sqlite|mysql, DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
+  DB_NAME (archivo SQLite, por defecto db.sqlite3)
 """
 
 import os
@@ -91,29 +91,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "gestion_campo.wsgi.application"
 
-# Base de datos: SQLite en desarrollo, MySQL con DB_ENGINE=mysql
-if env("DB_ENGINE", "sqlite").lower() == "mysql":
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.mysql",
-            "NAME": env("DB_NAME", "gestion_campo"),
-            "USER": env("DB_USER", "root"),
-            "PASSWORD": env("DB_PASSWORD", ""),
-            "HOST": env("DB_HOST", "127.0.0.1"),
-            "PORT": env("DB_PORT", "3306"),
-            "OPTIONS": {
-                "charset": "utf8mb4",
-                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-            },
-        }
+# Base de datos: SQLite
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / env("DB_NAME", "db.sqlite3"),
     }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / env("DB_NAME", "db.sqlite3"),
-        }
-    }
+}
 
 AUTH_USER_MODEL = "cuentas.Usuario"
 # La interfaz es la SPA de React en /app/
