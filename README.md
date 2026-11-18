@@ -1,4 +1,4 @@
-# CampoTrack
+# TaskControl
 
 Gestión de tareas de campo y viáticos. Backend Django + API REST, frontend React (SPA en `/app/`), base de datos SQLite.
 

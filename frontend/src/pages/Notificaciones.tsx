@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import BottomNav from "@/components/BottomNav";
 import Cargando from "@/components/Cargando";
 import ErrorBox from "@/components/ErrorBox";
 import Heading from "@/components/Heading";
@@ -103,11 +102,10 @@ export default function Notificaciones() {
   return (
     <>
       <MobileHeader title="Notificaciones" action={botonLeer} />
-      <div className="mobile-scroll pb-24 pt-3">
-        <div className="px-5 py-2 text-xs font-bold uppercase tracking-wider text-slate-400">Recientes</div>
-        {filas}
+      <div className="mobile-scroll px-5 pb-24 pt-3">
+        <div className="py-2 text-xs font-bold uppercase tracking-wider text-slate-400">Recientes</div>
+        <div className="lista-notificaciones">{filas}</div>
       </div>
-      <BottomNav />
     </>
   );
 }

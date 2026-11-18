@@ -1,0 +1,55 @@
+@startuml
+!include estilo.iuml
+autonumber
+actor Empleado as E
+participant "SPA React\n(Evidencias.tsx)" as R
+participant "API DRF\n(PresentarView, EntregaForm)" as V
+participant "imagenes.py" as I
+participant "Entrega\n(modelo)" as M
+participant "historial.servicios" as H
+database SQLite as DB
+actor Administrador as A
+
+E -> R : elige fotos y comentario
+R -> R : valida JPG/PNG ≤ 10 MB
+R -> V : POST /api/tareas/{id}/entregas/\nmultipart (fotos) + X-CSRFToken
+V -> V : permiso EsEmpleado y\ntarea visible (regla 5)
+V -> I : procesar_imagen(cada foto)
+I --> V : JPG/PNG ≤ 1920 px
+alt sin fotos o foto inválida
+  V --> R : 400 {"detail": ["Agregue al menos una foto..."]}
+  R --> E : muestra el mensaje
+else fotos válidas
+  V -> M : presentar(tarea, empleado, evidencias, comentario)
+  M -> DB : bloquea la tarea (select_for_update)
+  alt faltan ítems obligatorios o la tarea no está abierta
+    M --> V : ValidationError
+    V --> R : 400 {"detail": ["Complete los ítems..."]}
+    R --> E : muestra el mensaje
+  else todo correcto
+    M -> DB : Entrega vN + Evidencias;\nTarea → EN_REVISION
+    M -> H : registrar() + notificar_administradores()
+    H -> DB : Historial + Notificacion
+    M --> V : entrega
+    V --> R : 201 detalle de la tarea
+    R --> E : confirma la entrega
+  end
+end
+... más tarde ...
+A -> R : abre /app/entregas/{id}
+alt aprobar
+  R -> V : POST /api/entregas/{id}/aprobar/
+  V -> M : aprobar(revisor, observaciones)
+  M -> DB : Revision; Entrega → APROBADA;\nTarea → COMPLETADA
+else devolver
+  R -> V : POST /api/entregas/{id}/devolver/
+  V -> M : devolver(revisor, observaciones)
+  note right of M : Sin observación:\nValidationError → 400
+  M -> DB : Revision; Entrega → DEVUELTA;\nTarea → DEVUELTA
+end
+M -> H : registrar() + notificar(empleado)
+H -> DB : Historial + Notificacion
+M --> V : revision
+V --> R : 200 estado de la entrega
+R --> A : muestra el resultado
+@enduml

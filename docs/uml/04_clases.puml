@@ -1,0 +1,176 @@
+@startuml
+!include estilo.iuml
+hide empty methods
+skinparam linetype ortho
+
+package cuentas {
+  class Empresa {
+    nombre
+    rnc «único»
+    telefono
+    activa : bool
+  }
+  class AbstractUser <<Django>>
+  class Usuario {
+    rol : EMPLEADO | ADMINISTRADOR
+    cargo, telefono, zona
+    --
+    {field} es_administrador : propiedad
+    {field} es_empleado : propiedad
+    {field} tiene_empresa_activa : propiedad
+  }
+}
+
+package configuracion {
+  class TipoServicio {
+    nombre
+    activo : bool
+    --
+    eliminar()
+  }
+  class PlantillaChecklist {
+    nombre
+    activa : bool
+  }
+  class ItemPlantilla {
+    descripcion
+    orden
+    obligatorio : bool
+  }
+}
+
+package tareas {
+  class Tarea {
+    titulo, descripcion, ubicacion
+    criterios_aceptacion
+    prioridad : BAJA..URGENTE
+    fecha_limite
+    estado : EstadoTarea
+    creada_en, actualizada_en, completada_en
+    {field} codigo : TC-0001
+    {field} esta_abierta, vencida : propiedad
+    --
+    iniciar()
+    copiar_plantilla()
+    crear_checklist()
+    actualizar_checklist()
+    progreso()
+    obligatorios_pendientes()
+    registrar_asignacion()
+  }
+  class ItemChecklist {
+    descripcion, orden
+    obligatorio : bool
+    completado : bool
+    marcado_en
+    --
+    marcar()
+  }
+}
+
+package entregas {
+  class Entrega {
+    version
+    comentario
+    estado : EN_REVISION | APROBADA | DEVUELTA
+    presentada_en
+    --
+    {static} presentar()
+    aprobar()
+    devolver()
+  }
+  class Evidencia {
+    archivo : ImageField
+    descripcion
+    subida_en
+  }
+  class Revision {
+    decision
+    observaciones
+    revisada_en
+  }
+}
+
+package viaticos {
+  class Viatico {
+    concepto
+    monto_solicitado
+    monto_aprobado
+    anticipo_entregado
+    estado : EstadoViatico
+    observacion
+    solicitado_en, autorizado_en
+    {field} codigo : VIA-0001
+    --
+    {static} solicitar()
+    autorizar()
+    entregar_anticipo()
+    rechazar()
+    registrar_gasto()
+    liquidar()
+    totales()
+  }
+  class Gasto {
+    categoria
+    fecha
+    monto
+    descripcion
+    comprobante : ImageField
+    estado : PENDIENTE | APROBADO | RECHAZADO
+    observacion
+    revisado_en, registrado_en
+    --
+    aprobar()
+    rechazar()
+  }
+  class Liquidacion {
+    total_gastos
+    total_anticipo
+    saldo
+    resultado : REEMBOLSO | DEVOLUCION | SALDADO
+    liquidada_en
+  }
+}
+
+package historial {
+  class Historial {
+    entidad : tarea | viatico
+    entidad_id
+    accion
+    detalle
+    fecha
+  }
+  class Notificacion {
+    mensaje
+    enlace
+    leida : bool
+    creada_en
+  }
+}
+
+AbstractUser <|-- Usuario
+Empresa "0..1" -- "0..*" Usuario
+Empresa "1" -- "0..*" TipoServicio
+TipoServicio "1" *-- "0..*" PlantillaChecklist
+PlantillaChecklist "1" *-- "0..*" ItemPlantilla
+Empresa "1" -- "0..*" Tarea
+TipoServicio "1" -- "0..*" Tarea
+Usuario "1" -- "0..*" Tarea : asignado_a
+Usuario "1" -- "0..*" Tarea : creado_por
+Tarea "1" *-- "0..*" ItemChecklist
+Tarea "1" -- "0..*" Entrega : versiones
+Entrega "1" *-- "1..*" Evidencia
+Entrega "1" -- "0..1" Revision
+Usuario "1" -- "0..*" Entrega : empleado
+Usuario "1" -- "0..*" Revision : revisor
+Tarea "1" -- "0..*" Viatico
+Usuario "1" -- "0..*" Viatico : empleado
+Usuario "0..1" -- "0..*" Viatico : autorizado_por
+Usuario "0..1" -- "0..*" Gasto : revisado_por
+Viatico "1" *-- "0..*" Gasto
+Viatico "1" -- "0..1" Liquidacion
+Usuario "1" -- "0..*" Liquidacion : liquidado_por
+Empresa "1" -- "0..*" Historial
+Usuario "1" -- "0..*" Historial
+Usuario "1" -- "0..*" Notificacion
+@enduml

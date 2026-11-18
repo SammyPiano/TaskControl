@@ -1,4 +1,4 @@
-# CampoTrack — gestión de tareas y viáticos (Django + React)
+# TaskControl — gestión de tareas y viáticos (Django + React)
 
 ## Stack
 - Backend: Python 3.12, Django 5.2, Django REST Framework, SQLite, Pillow. Sin Celery.

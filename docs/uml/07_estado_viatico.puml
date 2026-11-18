@@ -1,0 +1,23 @@
+@startuml
+!include estilo.iuml
+hide empty description
+[*] --> SOLICITADO : Viatico.solicitar()\n(empleado asignado,\ntarea no cerrada)
+SOLICITADO --> RECHAZADO : rechazar(observación)
+SOLICITADO --> AUTORIZADO : autorizar(monto, anticipo = 0)
+SOLICITADO --> ANTICIPO_ENTREGADO : autorizar(monto, anticipo > 0)\n[anticipo ≤ aprobado]
+AUTORIZADO --> ANTICIPO_ENTREGADO : entregar_anticipo()\n[anticipo ≤ aprobado]
+AUTORIZADO --> EN_COMPROBACION : registrar_gasto()
+ANTICIPO_ENTREGADO --> EN_COMPROBACION : registrar_gasto()
+EN_COMPROBACION --> EN_COMPROBACION : registrar_gasto()\naprobar / rechazar gasto
+AUTORIZADO --> LIQUIDADO : liquidar()
+ANTICIPO_ENTREGADO --> LIQUIDADO : liquidar()
+EN_COMPROBACION --> LIQUIDADO : liquidar()\n[sin gastos pendientes]
+RECHAZADO --> [*]
+LIQUIDADO --> [*]
+note right of LIQUIDADO
+  saldo = gastos aprobados − anticipo
+  saldo > 0 → REEMBOLSO al empleado
+  saldo < 0 → DEVOLUCIÓN a la empresa
+  saldo = 0 → SALDADO
+end note
+@enduml

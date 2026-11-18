@@ -1,0 +1,49 @@
+@startuml
+!include estilo.iuml
+package "gestion_campo (proyecto)" as GC {
+  [settings / urls]
+  [api.py: permisos,\nerrores, paginación]
+  [imagenes.py]
+}
+package cuentas {
+}
+package configuracion {
+}
+package tareas {
+}
+package entregas {
+}
+package viaticos {
+}
+package historial {
+}
+package reportes {
+}
+
+configuracion --> cuentas : Empresa
+tareas --> configuracion : TipoServicio,\nplantillas
+tareas --> cuentas : Empresa, Usuario
+tareas --> historial : registrar / notificar
+tareas ..> entregas : consulta Entrega\n(import diferido)
+entregas --> tareas : Tarea
+entregas --> historial
+entregas --> cuentas : filtrar_por_usuario
+viaticos --> tareas : Tarea
+viaticos --> historial
+viaticos --> cuentas : filtrar_por_usuario
+historial --> cuentas
+historial --> reportes : exportar CSV,\nfiltro de período
+cuentas ..> tareas : import diferido
+cuentas ..> entregas : import diferido
+reportes --> tareas
+reportes --> entregas
+reportes --> viaticos
+entregas ..> GC : imagenes
+viaticos ..> GC : imagenes
+note bottom of GC
+  Las API de todas las apps usan gestion_campo.api
+  (permisos, paginación, archivos protegidos).
+  Esa pieza usa a su vez cuentas.Usuario.
+  urls.py incluye las rutas de cada app.
+end note
+@enduml

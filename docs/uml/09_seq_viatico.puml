@@ -1,0 +1,71 @@
+@startuml
+!include estilo.iuml
+autonumber
+actor Empleado as E
+participant "SPA React" as R
+participant "API viaticos" as V
+participant "Viatico / Gasto\n(modelos)" as M
+database SQLite as DB
+actor Administrador as A
+
+E -> R : Solicitar viático (tarea, concepto, monto)
+R -> V : POST /api/viaticos/
+V -> M : Viatico.solicitar()
+M -> DB : SOLICITADO + Historial + aviso a admins
+V --> R : 201 detalle
+
+alt autorizar
+  A -> R : Autorizar (monto aprobado, anticipo)
+  R -> V : POST /api/viaticos/{id}/autorizar/
+  V -> M : autorizar()  [anticipo ≤ aprobado]
+  M -> DB : AUTORIZADO o ANTICIPO_ENTREGADO\n+ Historial + aviso al empleado
+  V --> R : 200 detalle
+else rechazar (fin del flujo)
+  A -> R : Rechazar (motivo obligatorio)
+  R -> V : POST /api/viaticos/{id}/rechazar/
+  V -> M : rechazar(observación)
+  M -> DB : RECHAZADO + Historial + aviso al empleado
+  V --> R : 200 detalle
+end
+
+opt anticipo posterior (viático AUTORIZADO)
+  A -> R : Entregar anticipo
+  R -> V : POST /api/viaticos/{id}/anticipo/
+  V -> M : entregar_anticipo()  [anticipo ≤ aprobado]
+  M -> DB : ANTICIPO_ENTREGADO + Historial + aviso al empleado
+  V --> R : 200 detalle
+end
+
+loop por cada gasto
+  E -> R : foto del comprobante, categoría, fecha, monto
+  R -> V : POST /api/viaticos/{id}/gastos/
+  V -> V : GastoForm: procesar_imagen(),\nfecha no futura
+  V -> M : registrar_gasto()
+  M -> DB : Gasto PENDIENTE; viático EN_COMPROBACION\n+ Historial + aviso a admins
+  V --> R : 201 detalle
+  A -> R : revisar gasto
+  R -> V : POST /api/gastos/{id}/aprobar/ o /rechazar/
+  V -> M : Gasto.aprobar() / rechazar(observación)
+  M -> DB : APROBADO o RECHAZADO + Historial\n(si se rechaza, aviso al empleado)
+  V --> R : 200 detalle
+end
+
+A -> R : Liquidar
+R -> V : POST /api/viaticos/{id}/liquidar/
+V -> M : liquidar()
+alt hay gastos pendientes
+  M --> V : ValidationError
+  V --> R : 400 "Revise todos los gastos pendientes..."
+  R --> A : muestra el mensaje
+else sin gastos pendientes
+  M -> DB : Liquidacion (saldo, resultado); viático LIQUIDADO\n+ Historial + Notificacion al empleado
+  M --> V : liquidación
+  V --> R : 200 detalle
+  R --> A : muestra el resultado
+  ... más tarde ...
+  E -> R : abre sus notificaciones
+  R -> V : GET /api/notificaciones/
+  V --> R : aviso con el resultado
+  R --> E : muestra el resultado
+end
+@enduml

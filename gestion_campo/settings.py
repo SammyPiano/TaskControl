@@ -1,5 +1,5 @@
 """
-Configuración de gestion_campo (CampoTrack).
+Configuración de gestion_campo (TaskControl).
 
 Variables de entorno (también se leen desde un archivo .env en la raíz):
   DJANGO_SECRET_KEY, DJANGO_DEBUG, DJANGO_ALLOWED_HOSTS, DJANGO_CSRF_TRUSTED_ORIGINS

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import Badge from "@/components/Badge";
-import BottomNav from "@/components/BottomNav";
 import Cargando from "@/components/Cargando";
 import ErrorBox from "@/components/ErrorBox";
 import Icon from "@/components/Icon";
@@ -34,7 +33,7 @@ export default function MisViaticos() {
       <MobileHeader title="Mis viáticos" action={<button className={`icon-button ${estado ? "!text-wine" : ""}`} onClick={() => setVerFiltros(!verFiltros)} aria-label="Filtrar" aria-expanded={verFiltros}><Icon name="filter" /></button>} />
       <div className="mobile-scroll px-5 pb-32 pt-5">
         {verFiltros && (
-          <div className="chips no-scrollbar mb-4">
+          <div className="chips chips-sangrado no-scrollbar mb-4">
             {ESTADOS.map((e) => <button key={e.valor} className={estado === e.valor ? "active" : ""} onClick={() => setEstado(e.valor)}>{e.etiqueta}</button>)}
           </div>
         )}
@@ -65,7 +64,6 @@ export default function MisViaticos() {
         </div>
       </div>
       <button className="fab" onClick={() => navigate("/viaticos/solicitar")}><Icon name="plus" />Solicitar viático</button>
-      <BottomNav />
     </>
   );
 }

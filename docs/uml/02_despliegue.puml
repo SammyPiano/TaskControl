@@ -1,0 +1,40 @@
+@startuml
+!include estilo.iuml
+node "Navegador (teléfono o PC)" as NAV {
+  component "SPA React 19\n(React Router, basename /app)" as SPA
+  component "lib/api.ts\n(fetch + cookie de sesión + X-CSRFToken)" as CLI
+}
+node "Desarrollo: Vite :5173\n(pnpm dev:todo)" as VITE {
+  component "Servidor Vite\n(recarga en caliente)" as VS
+  component "Proxy: todo lo que\nno es /app → Django" as PX
+}
+node "Servidor Django :8000" as DJ {
+  component "gestion_campo.urls" as URLS
+  component "Vista spa\n(/app/... → index.html\ny cookie CSRF)" as SPAV
+  component "API REST (DRF)\n/api/..." as API
+  component "Permisos\nEmpresaActiva /\nEsAdministrador / EsEmpleado" as PERM
+  component "Modelos con lógica de estados\naprobar(), devolver(), liquidar()..." as MOD
+  component "historial.servicios\nregistrar() / notificar()" as HIS
+  component "imagenes.py (Pillow)\nJPG/PNG ≤ 10 MB, 1920 px" as IMG
+  component "Estáticos\n/static/app/ (frontend/dist)" as EST
+}
+database "SQLite\ndb.sqlite3" as DB
+folder "media/\nevidencias y comprobantes" as MEDIA
+
+SPA --> CLI
+CLI --> VS : desarrollo
+VS ..> PX
+PX --> URLS : todo menos /app\n(/api, /admin...)
+CLI --> URLS : un solo servidor\n(pnpm servir)
+URLS --> SPAV
+URLS --> API
+URLS ..> EST
+API --> PERM
+API --> MOD
+API --> IMG
+MOD --> HIS
+MOD --> DB
+HIS --> DB
+MOD --> MEDIA : ImageField guarda\nlas fotos procesadas
+API ..> MEDIA : archivos solo por\nendpoints protegidos
+@enduml

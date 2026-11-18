@@ -1,0 +1,56 @@
+!pragma layout smetana
+skinparam dpi 170
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+skinparam ArrowColor #3D5A66
+skinparam ArrowFontSize 11
+skinparam ArrowFontColor #33454D
+skinparam roundCorner 8
+skinparam class {
+  BackgroundColor #F2F8F8
+  BorderColor #006A70
+  HeaderBackgroundColor #D5ECEC
+  AttributeFontSize 11
+}
+skinparam state {
+  BackgroundColor #F2F8F8
+  BorderColor #006A70
+  FontStyle bold
+}
+skinparam usecase {
+  BackgroundColor #F2F8F8
+  BorderColor #006A70
+}
+skinparam actor {
+  BorderColor #006A70
+  BackgroundColor #D5ECEC
+}
+skinparam component {
+  BackgroundColor #F2F8F8
+  BorderColor #006A70
+}
+skinparam package {
+  BackgroundColor #FAFCFC
+  BorderColor #7A9AA0
+}
+skinparam node {
+  BackgroundColor #FAFCFC
+  BorderColor #7A9AA0
+}
+skinparam database {
+  BackgroundColor #FFF6E5
+  BorderColor #9A6500
+}
+skinparam sequence {
+  ParticipantBackgroundColor #F2F8F8
+  ParticipantBorderColor #006A70
+  LifeLineBorderColor #7A9AA0
+  ActorBackgroundColor #D5ECEC
+  ActorBorderColor #006A70
+}
+skinparam note {
+  BackgroundColor #FFF9E8
+  BorderColor #C9A34A
+}

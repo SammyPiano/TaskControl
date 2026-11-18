@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import Badge from "@/components/Badge";
-import BottomNav from "@/components/BottomNav";
 import Cargando from "@/components/Cargando";
 import ErrorBox from "@/components/ErrorBox";
 import Icon from "@/components/Icon";
@@ -39,10 +38,10 @@ function TaskCard({ tarea }: { tarea: TareaResumen }) {
         <Icon name="chevron" size={18} />
       </div>
       {tarea.ubicacion && <div className="mb-1.5 flex items-center gap-2 text-xs text-slate-500"><Icon name="pin" size={15} /><span className="truncate">{tarea.ubicacion}</span></div>}
-      <div className="mb-4 flex items-center gap-2 text-xs text-slate-500">
+      <div className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs text-slate-500">
         <Icon name="calendar" size={15} />
-        <span className={tarea.vencida ? "font-semibold text-red-600" : ""}>{vence(tarea.fecha_limite, tarea.vencida)}</span>
-        <span className="ml-auto rounded-md bg-slate-50 px-2 py-1">{tarea.tipo_servicio}</span>
+        <span className={`whitespace-nowrap ${tarea.vencida ? "font-semibold text-red-600" : ""}`}>{vence(tarea.fecha_limite, tarea.vencida)}</span>
+        <span className="ml-auto max-w-full truncate rounded-md bg-slate-50 px-2 py-1">{tarea.tipo_servicio}</span>
       </div>
       {p.total > 0 ? <Progress value={p.porcentaje} label={`${p.hechos}/${p.total}`} /> : <div className="text-xs text-slate-400">Sin lista de verificación</div>}
     </Link>
@@ -62,10 +61,10 @@ export default function MisTareas() {
 
   return (
     <>
-      <div className="mobile-scroll pb-28">
-        <div className="px-5 pb-4 pt-7">
+      <div className="mobile-scroll px-5 pb-28">
+        <div className="pb-4 pt-[calc(1.75rem+env(safe-area-inset-top))]">
           <div className="mb-6 flex items-center justify-between">
-            <Logo compact />
+            <div className="lg:invisible"><Logo compact /></div>
             <Link to="/notificaciones" className="icon-button relative bg-white shadow-sm" aria-label="Notificaciones">
               <Icon name="bell" />
               {sinLeer > 0 && <span className="notification-dot right-1 top-1" />}
@@ -77,7 +76,7 @@ export default function MisTareas() {
             {tareas ? <>Tienes <b className="text-slate-700">{plural(deHoy, "tarea", "tareas")}</b> para hoy · {plural(tareas.length, "activa", "activas")}.</> : "Cargando tus tareas…"}
           </p>
         </div>
-        <div className="chips no-scrollbar px-5 pb-4">
+        <div className="chips chips-sangrado no-scrollbar pb-4">
           {FILTROS.map((f) => (
             <button key={f.etiqueta} onClick={() => setFiltro(f.etiqueta)} className={filtro === f.etiqueta ? "active" : ""} aria-pressed={filtro === f.etiqueta}>
               {f.etiqueta}
@@ -85,14 +84,13 @@ export default function MisTareas() {
             </button>
           ))}
         </div>
-        <div className="space-y-3 px-5">
+        <div className="space-y-3">
           <ErrorBox mensajes={errores} />
           {cargando && !tareas && <Cargando filas={3} alto="h-40" />}
           <div className="lista-tarjetas">{visibles.map((t) => <TaskCard key={t.id} tarea={t} />)}</div>
           {tareas && !visibles.length && <div className="rounded-xl border border-dashed border-slate-300 p-7 text-center text-xs text-slate-400">No hay tareas en este filtro.</div>}
         </div>
       </div>
-      <BottomNav />
     </>
   );
 }

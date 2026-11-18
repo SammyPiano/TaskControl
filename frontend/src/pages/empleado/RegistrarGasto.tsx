@@ -66,27 +66,39 @@ export default function RegistrarGasto() {
       <div className="mobile-scroll px-5 pb-28 pt-5">
         <ErrorBox mensajes={errCarga} />
         {v && <div className="info-strip"><Icon name="wallet" /><div><b>{conAnticipo ? "Anticipo disponible" : "Aprobado disponible"}: {rd(disponible)}</b><span>{v.concepto} · {v.tarea.codigo}</span></div></div>}
-        <label className="field-label" htmlFor="categoria">Categoría</label>
-        <select id="categoria" className="select" value={categoria} onChange={(e) => setCategoria(e.target.value)}>
-          {(opciones?.categorias ?? [{ valor: "TRANSPORTE", etiqueta: "Transporte" }]).map((c) => <option key={c.valor} value={c.valor}>{c.etiqueta}</option>)}
-        </select>
-        <label className="field-label mt-5" htmlFor="fecha">Fecha del gasto</label>
-        <div className="field mobile-field-date"><Icon name="calendar" size={18} /><input id="fecha" type="date" max={hoyIso()} value={fechaGasto} onChange={(e) => setFechaGasto(e.target.value)} /></div>
-        <label className="field-label mt-5" htmlFor="monto">Monto</label>
-        <div className="field amount-field"><b>RD$</b><input id="monto" inputMode="decimal" value={monto} onChange={(e) => setMonto(e.target.value.replace(/[^\d.,]/g, ""))} placeholder="0.00" /></div>
-        <label className="field-label mt-5">Comprobante</label>
-        <input ref={entrada} type="file" accept="image/jpeg,image/png" capture="environment" hidden onChange={(e) => { elegir(e.target.files?.[0]); e.target.value = ""; }} />
-        {!comprobante ? (
-          <button className="receipt-upload" onClick={() => entrada.current?.click()}><div className="round-icon"><Icon name="camera" /></div><b>Adjuntar foto del comprobante</b><span>JPG o PNG · Máximo 10 MB</span></button>
-        ) : (
-          <div className="file-row">
-            <div className="round-icon"><Icon name="file" /></div>
-            <div className="min-w-0 flex-1"><b className="truncate">{comprobante.name}</b><span>{tamano(comprobante.size)} · Archivo listo</span></div>
-            <button className="icon-button" onClick={() => setComprobante(null)} aria-label="Quitar comprobante"><Icon name="x" /></button>
+        <div className="form-grid">
+          <div>
+            <label className="field-label" htmlFor="categoria">Categoría</label>
+            <select id="categoria" className="select" value={categoria} onChange={(e) => setCategoria(e.target.value)}>
+              {(opciones?.categorias ?? [{ valor: "TRANSPORTE", etiqueta: "Transporte" }]).map((c) => <option key={c.valor} value={c.valor}>{c.etiqueta}</option>)}
+            </select>
           </div>
-        )}
-        <label className="field-label mt-5" htmlFor="nota">Nota <span className="font-normal text-slate-400">(opcional)</span></label>
-        <textarea id="nota" className="textarea" value={nota} onChange={(e) => setNota(e.target.value)} maxLength={255} placeholder="Agrega un detalle sobre este gasto..." />
+          <div>
+            <label className="field-label" htmlFor="fecha">Fecha del gasto</label>
+            <div className="field mobile-field-date"><Icon name="calendar" size={18} /><input id="fecha" type="date" max={hoyIso()} value={fechaGasto} onChange={(e) => setFechaGasto(e.target.value)} /></div>
+          </div>
+          <div>
+            <label className="field-label" htmlFor="monto">Monto</label>
+            <div className="field amount-field"><b>RD$</b><input id="monto" inputMode="decimal" value={monto} onChange={(e) => setMonto(e.target.value.replace(/[^\d.,]/g, ""))} placeholder="0.00" /></div>
+          </div>
+          <div className="campo-doble">
+            <label className="field-label">Comprobante</label>
+            <input ref={entrada} type="file" accept="image/jpeg,image/png" capture="environment" hidden onChange={(e) => { elegir(e.target.files?.[0]); e.target.value = ""; }} />
+            {!comprobante ? (
+              <button className="receipt-upload" onClick={() => entrada.current?.click()}><div className="round-icon"><Icon name="camera" /></div><b>Adjuntar foto del comprobante</b><span>JPG o PNG · Máximo 10 MB</span></button>
+            ) : (
+              <div className="file-row">
+                <div className="round-icon"><Icon name="file" /></div>
+                <div className="min-w-0 flex-1"><b className="truncate">{comprobante.name}</b><span>{tamano(comprobante.size)} · Archivo listo</span></div>
+                <button className="icon-button" onClick={() => setComprobante(null)} aria-label="Quitar comprobante"><Icon name="x" /></button>
+              </div>
+            )}
+          </div>
+          <div>
+            <label className="field-label" htmlFor="nota">Nota <span className="font-normal text-slate-400">(opcional)</span></label>
+            <textarea id="nota" className="textarea" value={nota} onChange={(e) => setNota(e.target.value)} maxLength={255} placeholder="Agrega un detalle sobre este gasto..." />
+          </div>
+        </div>
         {errores.length > 0 && <div className="mt-4"><ErrorBox mensajes={errores} /></div>}
       </div>
       <div className="mobile-sticky-action">

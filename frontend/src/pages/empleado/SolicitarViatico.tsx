@@ -37,15 +37,23 @@ export default function SolicitarViatico() {
       <div className="mobile-scroll px-5 pb-28 pt-5">
         <div className="info-strip"><Icon name="wallet" /><div><b>El administrador autorizará el monto</b><span>Luego registra cada gasto con su comprobante.</span></div></div>
         <ErrorBox mensajes={errCarga} />
-        <label className="field-label" htmlFor="tarea">Tarea</label>
-        <select id="tarea" className="select" value={tarea} onChange={(e) => setTarea(e.target.value)}>
-          <option value="">Elige una tarea…</option>
-          {opciones?.tareas.map((t) => <option key={t.id} value={t.id}>{t.codigo} · {t.titulo}</option>)}
-        </select>
-        <label className="field-label mt-5" htmlFor="concepto">Concepto</label>
-        <div className="field"><Icon name="file" size={18} /><input id="concepto" value={concepto} onChange={(e) => setConcepto(e.target.value)} placeholder="Ej.: combustible y peajes" maxLength={255} /></div>
-        <label className="field-label mt-5" htmlFor="monto">Monto solicitado</label>
-        <div className="field amount-field"><b>RD$</b><input id="monto" inputMode="decimal" value={monto} onChange={(e) => setMonto(e.target.value.replace(/[^\d.,]/g, ""))} placeholder="0.00" /></div>
+        <div className="form-grid">
+          <div className="campo-ancho">
+            <label className="field-label" htmlFor="tarea">Tarea</label>
+            <select id="tarea" className="select" value={tarea} onChange={(e) => setTarea(e.target.value)}>
+              <option value="">Elige una tarea…</option>
+              {opciones?.tareas.map((t) => <option key={t.id} value={t.id}>{t.codigo} · {t.titulo}</option>)}
+            </select>
+          </div>
+          <div className="campo-doble">
+            <label className="field-label" htmlFor="concepto">Concepto</label>
+            <div className="field"><Icon name="file" size={18} /><input id="concepto" value={concepto} onChange={(e) => setConcepto(e.target.value)} placeholder="Ej.: combustible y peajes" maxLength={255} /></div>
+          </div>
+          <div>
+            <label className="field-label" htmlFor="monto">Monto solicitado</label>
+            <div className="field amount-field"><b>RD$</b><input id="monto" inputMode="decimal" value={monto} onChange={(e) => setMonto(e.target.value.replace(/[^\d.,]/g, ""))} placeholder="0.00" /></div>
+          </div>
+        </div>
         {errores.length > 0 && <div className="mt-4"><ErrorBox mensajes={errores} /></div>}
       </div>
       <div className="mobile-sticky-action">

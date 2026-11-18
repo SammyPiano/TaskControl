@@ -1,0 +1,13 @@
+@startuml
+!include estilo.iuml
+hide empty description
+[*] --> EN_REVISION : presentar()\ncrea versión N + evidencias
+EN_REVISION --> APROBADA : aprobar(revisor)
+EN_REVISION --> DEVUELTA : devolver(revisor, observaciones)\n[observación obligatoria]
+APROBADA --> [*]
+DEVUELTA --> [*] : el empleado presenta\nla versión N+1
+note bottom of EN_REVISION
+  Cada revisión crea un registro Revision (1:1).
+  Las versiones y las fotos nunca se borran.
+end note
+@enduml

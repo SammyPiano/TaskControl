@@ -1,0 +1,24 @@
+@startuml
+!include estilo.iuml
+hide empty description
+[*] --> PENDIENTE : el administrador crea\nla tarea (con checklist)
+PENDIENTE --> EN_PROCESO : el empleado marca un ítem\no pulsa «Iniciar»
+PENDIENTE --> EN_REVISION : Entrega.presentar()\n[obligatorios marcados y ≥ 1 foto]
+EN_PROCESO --> EN_REVISION : Entrega.presentar()\n[obligatorios marcados y ≥ 1 foto]
+DEVUELTA --> EN_REVISION : presentar() nueva versión\n[obligatorios marcados y ≥ 1 foto]
+EN_REVISION --> COMPLETADA : admin aprueba\n(Entrega.aprobar)
+EN_REVISION --> DEVUELTA : admin devuelve\ncon observación
+COMPLETADA --> [*]
+CANCELADA --> [*]
+note right of CANCELADA
+  Estado definido en el modelo;
+  la app aún no ofrece
+  una acción para cancelar.
+end note
+note left of DEVUELTA
+  Estados «abiertos»:
+  PENDIENTE, EN_PROCESO, DEVUELTA.
+  Solo en ellos se edita la tarea
+  y se marca el checklist.
+end note
+@enduml

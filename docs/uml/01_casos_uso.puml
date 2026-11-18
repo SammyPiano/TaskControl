@@ -1,0 +1,58 @@
+@startuml
+!include estilo.iuml
+left to right direction
+actor "Empleado\n(teléfono)" as E
+actor "Administrador\n(escritorio)" as A
+
+rectangle "TaskControl" {
+  rectangle "Solo empleado" as RE {
+    usecase "Ver mis tareas" as E1
+    usecase "Iniciar tarea" as E7
+    usecase "Marcar ítems del checklist" as E2
+    usecase "Subir fotos y\nsolicitar revisión" as E3
+    usecase "Ver versiones de\nmis entregas" as E4
+    usecase "Solicitar viático" as E5
+    usecase "Registrar gasto\ncon comprobante" as E6
+  }
+  rectangle "Comunes" as RC {
+    usecase "Iniciar / cerrar sesión" as UC0
+    usecase "Ver notificaciones" as UC1
+    usecase "Ver mi perfil" as UC2
+  }
+  rectangle "Solo administrador" as RA {
+    usecase "Ver panel de indicadores" as A1
+    usecase "Crear, editar y\nreasignar tareas" as A2
+    usecase "Aprobar o devolver\nentregas" as A3
+    usecase "Autorizar / rechazar viático\ny entregar anticipo" as A4
+    usecase "Aprobar o rechazar gastos" as A5
+    usecase "Liquidar viático" as A6
+    usecase "Gestionar usuarios" as A7
+    usecase "Tipos de servicio y\nplantillas de checklist" as A8
+    usecase "Reportes y exportar CSV" as A9
+    usecase "Consultar historial" as A10
+  }
+}
+E --> E1
+E --> E2
+E --> E3
+E --> E4
+E --> E5
+E --> E6
+E --> E7
+E --> UC0
+E --> UC1
+E --> UC2
+UC0 <-- A
+UC1 <-- A
+UC2 <-- A
+A1 <-- A
+A2 <-- A
+A3 <-- A
+A4 <-- A
+A5 <-- A
+A6 <-- A
+A7 <-- A
+A8 <-- A
+A9 <-- A
+A10 <-- A
+@enduml
