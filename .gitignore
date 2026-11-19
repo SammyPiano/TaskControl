@@ -5,3 +5,7 @@ __pycache__/
 db.sqlite3
 media/
 staticfiles/
+# Archivos locales que no van al repositorio
+.DS_Store
+*.docx
+*.pdf
